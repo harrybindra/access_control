@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "*.txt": "tex",
+        "random": "cpp",
+        "thread": "cpp",
+        "array": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "system_error": "cpp",
+        "iostream": "cpp",
+        "*.tcc": "cpp",
+        "fstream": "cpp"
+    },
+    "idf.portWin": "COM9"
+}
