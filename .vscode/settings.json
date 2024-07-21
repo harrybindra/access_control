@@ -9,7 +9,17 @@
         "system_error": "cpp",
         "iostream": "cpp",
         "*.tcc": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "vector": "cpp",
+        "initializer_list": "cpp",
+        "regex": "cpp",
+        "bitset": "cpp",
+        "utility": "cpp"
     },
-    "idf.portWin": "COM9"
+    "idf.portWin": "COM9",
+    "cmake.sourceDirectory": "C:/Users/harry/Documents/PlatformIO/access-control-code-main/access-control-code-main/access_control/.pio/libdeps/esp32/ArduinoJson/src"
 }

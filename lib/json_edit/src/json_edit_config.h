@@ -1,7 +1,7 @@
 
 #include "FS.h"
-#include "SPIFFS.h"
-#include "./ArduinoJson.h"
+#include <LittleFS.h>
+#include "ArduinoJson.h"
 //  String LSreadFile( String *path) {}
 // void LSlistDir( String *dirname) {}
 // void LSwriteFile( String *path,  String *message) {}
@@ -14,6 +14,7 @@ private:
 public:
       String GetTelToken(  );
     void SetTelToken( String data);
+    
    String GetChatId(  );
     void SetChatId( String data);
 

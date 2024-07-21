@@ -1,51 +1,68 @@
 #include "json_edit_config.h"
 
 
-String path = "/SPIFFS/config.json";
+String path = "/littlefs/config.json";
 
 String LSreadFile(String path)
 {
-  SPIFFS.begin(false);
-  Serial.printf("Reading file: %s\n", path);
-  File file = SPIFFS.open(path.c_str(), "r");
+  LittleFS.begin(false);
+  File file = LittleFS.open(path.c_str(), FILE_READ);
   if (!file)
   {
-    Serial.println("Failed to open file for reading");
     return "nop";
   }
 
-  Serial.print("Read from file: ");
 
   String data = file.readString();
 
   file.close();
   return data;
 }
-void LSwriteFile(String path, String message)
+bool LSwriteFile(String path, String message)
 {
-  Serial.printf("Writing file: %s\n", path);
-  SPIFFS.begin(false, "/");
-  File file = SPIFFS.open(path.c_str(), "w");
+  LittleFS.begin(false, "/");
+  File file = LittleFS.open(path.c_str(), FILE_WRITE);
   if (!file)
   {
     Serial.println("Failed to open file for writing");
-    return;
+    return (false);
   }
   if (file.print(message))
-  {
-    Serial.println("File written");
+  {  file.close();
+    return(true);
   }
   else
-  {
-    Serial.println("Write failed");
+  {  file.close();
+    return(false);
   } // Make sure the CREATE and LASTWRITE times are different
-  file.close();
+
 }
 
-void json_edit_w(int data, String json_key, String w_path = path);
-void json_edit_w(String data, String json_key, String w_path = path);
-void json_edit_w(bool data, String json_key, String w_path = path);
-void json_edit_w(signed char data, String json_key, String w_path = path)
+void json_edit_w(int data, String json_key, String w_path = path){
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  doc[json_key] = data;
+  serializeJson(doc, ans);
+  LSwriteFile(w_path, ans);
+};
+void json_edit_w(bool data, String json_key, String w_path = path){
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  doc[json_key] = data;
+  serializeJson(doc, ans);
+  LSwriteFile(w_path, ans);
+};
+void json_edit_w(signed char data, String json_key, String w_path = path){
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  doc[json_key] = data;
+  serializeJson(doc, ans);
+  LSwriteFile(w_path, ans);
+};
+void json_edit_w( String data, String json_key, String w_path = path)
 {
   String ans = LSreadFile(path);
   JsonDocument doc;
