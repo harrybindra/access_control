@@ -1,15 +1,10 @@
-
-#include <SPIFFS.h>
 #include <ArduinoJson.h>
 #include <Arduino.h>
 #include <iostream>
-#include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <ILI9488.h>
 #include <qrcode.h>
 #include <HTTPClient.h>
-#include <int_leb.h>
-HTTPClient http;
+#include <TimerEvent.h>
+
 
 #define BLACK 0x0000
 #define RED 0xF800

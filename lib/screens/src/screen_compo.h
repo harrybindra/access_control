@@ -3,7 +3,9 @@
 #include "loding_icon.h"
 #include "corect_icon.h"
 #include "incorrect_icon.h"
+#include <ILI9488.h>
 
+#include <Adafruit_GFX.h>
 class screen_compo
 {
 private:

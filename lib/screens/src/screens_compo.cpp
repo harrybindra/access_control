@@ -1,4 +1,7 @@
 #include "screen_compo.h"
+
+
+
 QRCode qrcode;
 ILI9488 myScreen = ILI9488(CS, DC, MOSI, SCLK, RESET, MISO);
 const unsigned char *loding_icon[] = {

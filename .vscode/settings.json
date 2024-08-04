@@ -18,8 +18,19 @@
         "initializer_list": "cpp",
         "regex": "cpp",
         "bitset": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "*.clang-format": "cpp",
+        "typeinfo": "cpp",
+        "mutex": "cpp",
+        "chrono": "cpp",
+        "functional": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "ratio": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "limits": "cpp"
     },
-    "idf.portWin": "COM9",
+    "idf.portWin": "COM6",
     "cmake.sourceDirectory": "C:/Users/harry/Documents/PlatformIO/access-control-code-main/access-control-code-main/access_control/.pio/libdeps/esp32/ArduinoJson/src"
 }

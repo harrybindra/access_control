@@ -1,5 +1,4 @@
 #include "fingerprint_leb.h"  
-#include <Adafruit_Fingerprint.h>
 
 
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&Serial2);
