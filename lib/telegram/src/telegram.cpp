@@ -2,54 +2,63 @@
 
 #include <json_edit_config.h>
 HTTPClient http_teligram;
-TimerEvent timer_teligram;
+time_config timer_teligram;
+
 sd_edit_config sd_edit_teligram;
 json_edit_config configC_teligram;
+String comand_key_list_users = "list_users";
 String comand_key_add_user = "add_user";
 String comand_key_locke_unlock = "locke_unlock";
+String comand_key_list_schedule = "list_schedule";
 String comand_key_schedule = "schedule";
 String comand_key_shutedown = "shutedown";
-bool isvalededate(int date0, int month0, int year0, int date1, int month1, int year1)
+bool isvalededate(bool checkeing_first, int date0, int month0, int year0, int date1, int month1, int year1)
 {
-  if (date0 > date1)
+  if (checkeing_first)
   {
-    Serial.println("date0");
-    return false;
-  }
-  else if (month0 > month1)
-  {    Serial.println("month0");
 
-    return false;
-  }
-  else if (year0 > year1)
-  {    Serial.println("year0");
-
-    return false;
-  }
-  
-    return true;
-  
-}
-bool isvaledehour(int hour0, int min0, int hour1, int min1)
-{
-  if (hour0 > hour1)
-  {
-    return false;
-  }
-  else if (min0 > min1)
-  {
-    return false;
+    if (date0 <= timer_teligram.Getdate() && month0 <= timer_teligram.Getmonth() && year0 <= timer_teligram.Getyear())
+    {
+      return false;
+    }
   }
   else
   {
-    return true;
+
+    if (date0 > date1 && month0 > month1 && year0 > year1)
+    {
+      return false;
+    }
   }
+  return true;
+}
+bool isvaledehour(bool checkeing_first, int hour0, int min0, int hour1, int min1)
+{
+  if (checkeing_first)
+  {
+    // if (hour0 < timer_teligram.Gethour())
+    // {
+    //   return false;
+    // }
+    if (hour0 > hour1)
+    {
+      return false;
+    }
+  }
+  else
+  {
+
+    if (hour0 > hour1)
+    {
+      return false;
+    }
+  }
+
+  return true;
 }
 String days_render()
 {
   String days = configC_teligram.GetBufferScheduleTime_day();
-
-  Serial.println(configC_teligram.GetBufferScheduleTime_day());
 
   JsonDocument doc;
   doc["inline_keyboard"][0][0]["text"] = days.indexOf("monday") == -1 ? "MONDAY" : "\xE2\x9C\x85 MONDAY";
@@ -81,6 +90,56 @@ String days_render()
   serializeJson(doc, data);
   return data;
 }
+String user_list_render(int index, String users_list, bool middel_btn, String middel_text = "ADD", String middel_callback = "add_user", String middel_callback_use = "users")
+{
+  Serial.println("int");
+
+  JsonDocument doc_users_list;
+  deserializeJson(doc_users_list, users_list);
+  int users_list_size = doc_users_list.size();
+  int page_end = index == 0 ? (users_list_size < 9 ? users_list_size : 9) : (users_list_size < 9 ? users_list_size : (index + 1) * 9);
+  int page_start = index * 9;
+  JsonDocument doc;
+  int index_last_btn = 0;
+  Serial.println("vars");
+
+  for (int i = page_start; i < page_end; i++)
+  {
+    String user_name = doc_users_list[i];
+
+    if (user_name != "null")
+    {
+      doc["inline_keyboard"][index_last_btn][0]["text"] = user_name;
+      doc["inline_keyboard"][index_last_btn][0]["callback_data"] = user_name + "_" + middel_callback_use;
+      index_last_btn++;
+    }
+  }
+  Serial.println("list");
+
+  if (index != 0)
+  {
+    doc["inline_keyboard"][index_last_btn][0]["text"] = "<";
+    doc["inline_keyboard"][index_last_btn][0]["callback_data"] = "previous_" + middel_callback_use + "_" + String(index - 1);
+  }
+  //
+  if (middel_btn)
+  {
+    doc["inline_keyboard"][index_last_btn][index == 0 ? 0 : 1]["text"] = middel_text;
+    doc["inline_keyboard"][index_last_btn][index == 0 ? 0 : 1]["callback_data"] = middel_callback;
+  }
+  if (index_last_btn == 9)
+  {
+    doc["inline_keyboard"][index_last_btn][index == 0 ? 1 : 2]["text"] = ">";
+    doc["inline_keyboard"][index_last_btn][index == 0 ? 1 : 2]["callback_data"] = "next_" + middel_callback_use + "_" + String(index + 1);
+  }
+
+  String data;
+
+  serializeJson(doc, data);
+  Serial.println(data);
+  return data;
+}
+
 // GetChatId
 // GetTelToken
 bool has_letters(String data)
@@ -115,22 +174,22 @@ void telegram::send_text(String text, String object, bool update)
   // serializeJson(doc_pak, Serial);
 
   http_teligram.begin(path);
-  Serial.println(http_teligram.connected());
   http_teligram.addHeader("Host", "api.telegram.org");
   http_teligram.addHeader("Content-Type", "application/json");
   http_teligram.addHeader("Content-Length", "42");
 
   int respons = http_teligram.POST(paquet);
   String paylode = http_teligram.getString();
-  if (respons == 400)
+  if (respons == 200)
   {
-    Serial.println(paylode);
+    JsonDocument doc;
+    deserializeJson(doc, paylode);
+    int mess_id = doc["result"]["message_id"];
+    configC_teligram.SetTeligramBotId(mess_id);
   }
-
-  JsonDocument doc;
-  deserializeJson(doc, paylode);
-  int mess_id = doc["result"]["message_id"];
-  configC_teligram.SetTeligramBotId(mess_id);
+  else
+  {
+  }
 
   http_teligram.end();
 }
@@ -152,8 +211,7 @@ void telegram::remove_mass(int mass_id)
   http_teligram.addHeader("Content-Type", "application/json");
   http_teligram.addHeader("Content-Length", "42");
 
-  Serial.println(http_teligram.POST(paquet));
-
+  http_teligram.POST(paquet);
   String paylode = http_teligram.getString();
 
   http_teligram.end();
@@ -166,20 +224,21 @@ void telegram::remove_mass(int mass_id)
 // GetChatId
 String telegram::get_last_mass()
 {
-
   String token = configC_teligram.GetTelToken();
   String lastupdateid = configC_teligram.GetLastUpdateId();
   String chatid = configC_teligram.GetChatId();
   http_teligram.begin("https://api.telegram.org/bot" + token + "/getUpdates");
   http_teligram.addHeader("Host", "telegram.org");
   JsonDocument doc_pak;
-  doc_pak["offset"] = lastupdateid.toInt() + 1;
+  if (lastupdateid!="")
+  {doc_pak["offset"] = lastupdateid.toInt() + 1;
   doc_pak["timeout"] = 0;
+  }
+  
 
   String paquet;
 
   serializeJson(doc_pak, paquet);
-  Serial.println(paquet);
 
   if (http_teligram.POST(paquet) == HTTP_CODE_OK)
   {
@@ -202,8 +261,6 @@ String telegram::get_last_mass()
     String cb_chat_id = doc["result"][index]["callback_query"]["message"]["chat"]["id"];
     String resulet;
     String idD = doc["result"][index];
-    Serial.println(text);
-    Serial.println(cb_text);
 
     if (id == lastupdateid)
     {
@@ -215,17 +272,17 @@ String telegram::get_last_mass()
     {
       if (chatid != chat_id || chatid == "null")
       {
-        configC_teligram.SetChatId(callback_query ? cb_chat_id : chat_id);
+        configC_teligram.SetChatId(cb_chat_id != "null" ? cb_chat_id : chat_id);
       }
       if (chatid == "")
       {
-        configC_teligram.SetChatId(callback_query ? cb_chat_id : chat_id);
+        configC_teligram.SetChatId(cb_chat_id != "null" ? cb_chat_id : chat_id);
       }
       else
       {
 
         JsonDocument resu;
-        resu["text"] = callback_query ? cb_text : text;
+        resu["text"] = cb_text != "null" ? cb_text : text;
         resu["id"] = id;
         configC_teligram.SetLastUpdateId(id);
         serializeJson(resu, resulet);
@@ -238,24 +295,27 @@ String telegram::get_last_mass()
 
 void telegram::conand_map(String comand)
 {
-  Serial.println(comand);
-  Serial.println(comand_key_add_user);
-  Serial.println(comand_key_locke_unlock);
-  Serial.println(comand_key_schedule);
-  Serial.println(comand_key_shutedown);
 
   comand.trim();
   if (comand == "/start")
   {
 
     JsonDocument doc;
-    doc["inline_keyboard"][0][0]["text"] = "ADD USER";
-    doc["inline_keyboard"][0][0]["callback_data"] = "add_user";
+
+    doc["inline_keyboard"][0][0]["text"] = "USERS";
+    doc["inline_keyboard"][0][0]["callback_data"] = "list_users";
+
+    // doc["inline_keyboard"][0][0]["text"] = "ADD USER";
+    // doc["inline_keyboard"][0][0]["callback_data"] = "add_user";
+
     doc["inline_keyboard"][0][1]["text"] = "LOCK/UNLOCKE";
     doc["inline_keyboard"][0][1]["callback_data"] = "locke_unlock";
 
-    doc["inline_keyboard"][1][0]["text"] = "SCHEDULE";
-    doc["inline_keyboard"][1][0]["callback_data"] = "schedule";
+    doc["inline_keyboard"][1][0]["text"] = "SCHEDULES";
+    doc["inline_keyboard"][1][0]["callback_data"] = "list_schedule";
+
+    // doc["inline_keyboard"][1][0]["text"] = "SCHEDULE";
+    // doc["inline_keyboard"][1][0]["callback_data"] = "schedule";
 
     doc["inline_keyboard"][1][1]["text"] = "SHUTEDOWN";
     doc["inline_keyboard"][1][1]["callback_data"] = "shutedown";
@@ -276,6 +336,14 @@ void telegram::conand_map(String comand)
 
     send_text("select", data, false);
   }
+  else if (comand == comand_key_list_users /*list_users*/)
+  {
+    String data = user_list_render(0, configC_teligram.user_temp_list_names(), true);
+
+    send_text("select", data, true);
+
+    configC_teligram.SetTeligramComandIndex(0);
+  }
   else if (comand == comand_key_add_user /*add_user*/)
   {
 
@@ -288,7 +356,7 @@ void telegram::conand_map(String comand)
 
     // setting comand index
 
-    configC_teligram.SetTeligramComandIndex(0);
+    configC_teligram.SetTeligramComandIndex(1);
   }
   else if (comand == comand_key_locke_unlock /*locke_unlock*/)
   {
@@ -301,40 +369,99 @@ void telegram::conand_map(String comand)
     serializeJson(doc, data);
     send_text("select", data, true);
     // setting comand index
-    configC_teligram.SetTeligramComandIndex(1);
+    configC_teligram.SetTeligramComandIndex(2);
+  }
+  else if (comand == comand_key_list_schedule /*list_schedule*/)
+  {
+    String data = user_list_render(0, sd_edit_teligram.list_schedule(), true, "ADD", comand_key_schedule, "schedule");
+    send_text("select", data, true);
+
+    configC_teligram.SetTeligramComandIndex(3);
   }
   else if (comand == comand_key_schedule /*schedule*/)
   {
+
     configC_teligram.ResetBufferScheduleTime();
 
     configC_teligram.SetBufferScheduleIndex(0);
     configC_teligram.SetBufferScheduleSendIndex(-1);
 
     configC_teligram.SetBufferScheduleTimesIndex(0);
+    // telegram_comand_keys
 
-    configC_teligram.SetTeligramComandIndex(2);
+    configC_teligram.SetTeligramComandIndex(4);
   }
   else if (comand == comand_key_shutedown /*shutedown*/)
   {
-    configC_teligram.SetTeligramComandIndex(3);
+    configC_teligram.SetTeligramComandIndex(5);
   }
-
   String comand_key = configC_teligram.GetTeligramComandKey();
+  if (comand_key == comand_key_list_users)
+  {
 
-  if (comand_key == comand_key_add_user)
+    if (comand.indexOf("next_users_") != -1)
+    {
+      String index_Page = comand;
+      index_Page.remove(0, 11);
+      String data = user_list_render(index_Page.toInt(), configC_teligram.user_temp_list_names(), true);
+
+      send_text("select", data, true);
+    }
+    else if (comand.indexOf("previous_users_") != -1)
+    {
+      String index_Page = comand;
+      index_Page.remove(0, 15);
+
+      String data = user_list_render(index_Page.toInt(), configC_teligram.user_temp_list_names(), true);
+
+      send_text("select", data, true);
+    }
+    else if (comand.indexOf("_remove_user") != -1)
+    {
+      String index_Page = comand;
+      index_Page.remove(index_Page.indexOf("_remove_user"));
+
+      configC_teligram.remove_temp_user(index_Page);
+      send_text("Use /start to configer:", "{}", true);
+    }
+    else
+    {
+      String data = comand;
+
+      if (data.indexOf("_users") != -1 && data != "list_users")
+      {
+        data.remove(data.indexOf("_users"));
+        String user_pin = configC_teligram.user_temp_pin(data);
+        String user_name = configC_teligram.user_temp_name(user_pin);
+        String user_timeid = configC_teligram.user_temp_timeid(user_pin);
+        String user_permissions_config = configC_teligram.user_temp_permissions_config(user_pin) ? "Config/" : "";
+        String user_permissions_normal = configC_teligram.user_temp_permissions_normal(user_pin) ? "Normel" : "";
+        String user_permissions = user_permissions_config + user_permissions_normal;
+        String mass_text = "Name: " + user_name + "\nPin: " + user_pin + "\nType: " + user_permissions + "\nTimeId: " + user_timeid;
+        JsonDocument doc_qury;
+        doc_qury["inline_keyboard"][0][0]["text"] = "EXIT";
+        doc_qury["inline_keyboard"][0][0]["callback_data"] = "/start";
+        doc_qury["inline_keyboard"][0][1]["text"] = "REMOVE";
+        doc_qury["inline_keyboard"][0][1]["callback_data"] = user_name + "_remove_user";
+        String obj_qury;
+        serializeJson(doc_qury, obj_qury);
+        send_text(mass_text, obj_qury, true);
+      }
+    }
+  }
+  else if (comand_key == comand_key_add_user)
   {
   add_userstart:
 
-    String buffer_user_map[] = {"name", "pin", "permissions", "timeallow"};
-    String key = configC_teligram.GetTeligramComandKey();
-    String key_send = configC_teligram.GetTeligramComandKey();
+    String buffer_user_map[] = {"name", "pin", "permissions", "timeallow", "finish"};
+    String key = configC_teligram.GetBufferMapKey(configC_teligram.GetBufferUserIndex());
+    String key_send = configC_teligram.GetBufferMapKey(configC_teligram.GetBufferUserSendIndex());
 
     if (key == "name")
     {
 
       if (key_send != "name")
       {
-
         send_text("Name", "{}", true);
         configC_teligram.SetBufferUserSendIndex(0);
       }
@@ -402,6 +529,7 @@ void telegram::conand_map(String comand)
       }
       if (key_send == "permissions" && comand != "null")
       {
+
         if (comand == "permiten_1")
         {
           configC_teligram.SetBufferUserPermissionsNormal(false);
@@ -420,9 +548,80 @@ void telegram::conand_map(String comand)
         configC_teligram.SetBufferUserIndex(3);
         goto add_userstart;
       }
-      if (key_send == "permissions" && comand != "null")
+    }
+    if (key == "timeallow")
+    {
+      if (key_send == "permissions")
+      {  
+          Serial.println("start");
+
+        String data = user_list_render(0, sd_edit_teligram.list_schedule(), false, "ADD", comand_key_schedule, "schedule");
+        Serial.println("add_userstart");
+        
+                  Serial.println("send_text");
+
+        send_text("select", data, true);
+        Serial.println("add_userstart");
+
+        configC_teligram.SetBufferUserSendIndex(3);
+      }
+      else if (comand.indexOf("next_schedule_") != -1)
       {
-        configC_teligram.SetTeligramComandIndex(-1);
+        String index_Page = comand;
+        index_Page.remove(0, 11);
+        String data = user_list_render(index_Page.toInt(), sd_edit_teligram.list_schedule(), false, "ADD", comand_key_schedule, "schedule");
+
+        send_text("select", data, true);
+      }
+      else if (comand.indexOf("previous_schedule_") != -1)
+      {
+        String index_Page = comand;
+        index_Page.remove(0, 15);
+
+        String data = user_list_render(index_Page.toInt(), sd_edit_teligram.list_schedule(), false, "ADD", comand_key_schedule, "schedule");
+
+        send_text("select", data, true);
+      }
+      else
+      {
+        String data = comand;
+
+        if (data.indexOf("_schedule") != -1)
+        {
+          data.remove(data.indexOf("_schedule"));
+          configC_teligram.SetBufferUserTimeId(data);
+          configC_teligram.SetBufferUserIndex(4);
+          goto add_userstart;
+        }
+      }
+    }
+    if (key == "finish")
+    {
+      if (key_send == "timeallow")
+      {
+        JsonDocument doc;
+        doc["inline_keyboard"][0][0]["text"] = "CANCEL";
+        doc["inline_keyboard"][0][0]["callback_data"] = "/start";
+        doc["inline_keyboard"][0][1]["text"] = "SAVE";
+        doc["inline_keyboard"][0][1]["callback_data"] = "u_save";
+        String data;
+
+        serializeJson(doc, data);
+        send_text("Do You want to save it:", data, true);
+        configC_teligram.SetBufferUserSendIndex(4);
+      }
+      else if (comand == "u_save")
+      {
+        String name = configC_teligram.GetBufferUserName();
+        String pin = configC_teligram.GetBufferUserPin();
+        String timeid = configC_teligram.GetBufferUserTimeId();
+        bool permissions_normal = configC_teligram.GetBufferUserPermissionsNormal();
+        bool permissions_config = configC_teligram.GetBufferUserPermissionsConfig();
+
+        configC_teligram.make_temp_user(name, pin, timeid, permissions_normal, permissions_config);
+        configC_teligram.SetBufferUserIndex(0);
+        configC_teligram.SetBufferUserSendIndex(-1);
+        send_text("Use /start to configer:", "{}", true);
       }
     }
   }
@@ -437,6 +636,82 @@ void telegram::conand_map(String comand)
     if (comand == "unlock")
     {
       send_text("lock", "{}", true);
+    }
+  }
+  if (comand_key == comand_key_list_schedule)
+  {
+
+    if (comand.indexOf("next_schedule_") != -1)
+    {
+      String index_Page = comand;
+      index_Page.remove(0, 11);
+      String data = user_list_render(index_Page.toInt(), sd_edit_teligram.list_schedule(), true, "ADD", comand_key_schedule, "schedule");
+
+      send_text("select", data, true);
+    }
+    else if (comand.indexOf("previous_schedule_") != -1)
+    {
+      String index_Page = comand;
+      index_Page.remove(0, 15);
+
+      String data = user_list_render(index_Page.toInt(), sd_edit_teligram.list_schedule(), true, "ADD", comand_key_schedule, "schedule");
+
+      send_text("select", data, true);
+    }
+    else if (comand.indexOf("_remove_schedule") != -1)
+    {
+      String index_Page = comand;
+      index_Page.remove(index_Page.indexOf("_remove_schedule"));
+
+      sd_edit_teligram.remove_schedule(index_Page);
+      send_text("Use /start to configer:", "{}", true);
+    }
+    else
+    {
+      String data = comand;
+
+      if (data.indexOf("_schedule") != -1 && data != "list_schedule")
+      {
+
+        data.remove(data.indexOf("_schedule"));
+        String schedule_json = sd_edit_teligram.get_schedule(data);
+
+        JsonDocument doc;
+        deserializeJson(doc, schedule_json);
+        String schedule_name = doc["name"];
+        int schedule_times_size = doc["times"].size();
+
+        String mass_text =
+            " Name:" + schedule_name + "\n" + "Times:\n";
+        for (int i = 0; i < schedule_times_size; i++)
+        {
+          String schedule_type = doc["times"][i]["type"];
+          String schedule_start_date = doc["times"][i]["start_time"]["date"];
+          String schedule_start_month = doc["times"][i]["start_time"]["month"];
+          String schedule_start_year = doc["times"][i]["start_time"]["year"];
+          String schedule_start_hour = doc["times"][i]["start_time"]["hour"];
+          String schedule_start_min = doc["times"][i]["start_time"]["min"];
+
+          String schedule_end_date = doc["times"][i]["end_time"]["date"];
+          String schedule_end_month = doc["times"][i]["end_time"]["month"];
+          String schedule_end_year = doc["times"][i]["end_time"]["year"];
+          String schedule_end_hour = doc["times"][i]["end_time"]["hour"];
+          String schedule_end_min = doc["times"][i]["end_time"]["min"];
+          String num = String(i);
+          String text =
+              "   " + num + ":\n   Type:" + schedule_type + "\n   Start Date  - Start Time:\n   " + schedule_start_date + "/" + schedule_start_month + "/" + schedule_start_year + "-" + schedule_start_hour + ":" + schedule_start_min + "\n   End Date  - End Time:\n   " + schedule_end_date + "/" + schedule_end_month + "/" + schedule_end_year + "-" + schedule_end_hour + ":" + schedule_end_min + "\n";
+
+          mass_text.concat(text);
+        }
+        JsonDocument doc_qury;
+        doc_qury["inline_keyboard"][0][0]["text"] = "EXIT";
+        doc_qury["inline_keyboard"][0][0]["callback_data"] = "/start";
+        doc_qury["inline_keyboard"][0][1]["text"] = "REMOVE";
+        doc_qury["inline_keyboard"][0][1]["callback_data"] = schedule_name + "_remove_schedule";
+        String obj_qury;
+        serializeJson(doc_qury, obj_qury);
+        send_text(mass_text, obj_qury, true);
+      }
     }
   }
   else if (comand_key == comand_key_schedule)
@@ -454,6 +729,7 @@ void telegram::conand_map(String comand)
   };*/
     String key = configC_teligram.GetBufferScheduleMapKey(configC_teligram.GetBufferScheduleIndex());
     String key_send = configC_teligram.GetBufferScheduleMapKey(configC_teligram.GetBufferScheduleSendIndex());
+
     if (key == "s_name")
     {
 
@@ -546,11 +822,17 @@ void telegram::conand_map(String comand)
             temp_index++;
           }
         }
+        if (isvalededate(true, date.toInt(), month.toInt(), year.toInt(), 0, 0, 0) == false)
+        {
+          send_text("Invalid Time(" + comand + "):", "{}", true);
+        }
+        else
+        {
+          configC_teligram.SetBufferScheduleTime_starTime_date(date.toInt(), month.toInt(), year.toInt());
 
-        configC_teligram.SetBufferScheduleTime_starTime_date(date.toInt(), month.toInt(), year.toInt());
-
-        configC_teligram.SetBufferScheduleIndex(3);
-        goto schedule_start;
+          configC_teligram.SetBufferScheduleIndex(3);
+          goto schedule_start;
+        }
       }
     }
     if (key == "end_time_date")
@@ -606,14 +888,7 @@ void telegram::conand_map(String comand)
         int starTime_date_date0 = doc_starTime["date"];
         int starTime_date_month0 = doc_starTime["month"];
         int starTime_date_year0 = doc_starTime["year"];
-        Serial.println(starTime_date_date0);
-        Serial.println(starTime_date_month0);
-        Serial.println(starTime_date_year0);
-         Serial.println(date1);
-        Serial.println(month1);
-        Serial.println(year1);
-        Serial.println(isvalededate(starTime_date_date0, starTime_date_month0, starTime_date_year0, date1.toInt(), month1.toInt(), year1.toInt()));
-        if (isvalededate(starTime_date_date0, starTime_date_month0, starTime_date_year0, date1.toInt(), month1.toInt(), year1.toInt())==false)
+        if (isvalededate(false, starTime_date_date0, starTime_date_month0, starTime_date_year0, date1.toInt(), month1.toInt(), year1.toInt()) == false)
         {
           send_text("Invalid Time(" + comand + "):", "{}", true);
         }
@@ -670,7 +945,11 @@ void telegram::conand_map(String comand)
             temp_index++;
           }
         }
+        if (isvaledehour(true, hour.toInt(), min.toInt(), 0, 0) == false)
+        {
 
+          send_text("Invalid Time(" + comand + "):", "{}", true);
+        }
         if (hour.toInt() > 24 || min.toInt() > 59)
         {
           send_text("Incorrect Time value(" + comand + "):", "{}", true);
@@ -729,7 +1008,7 @@ void telegram::conand_map(String comand)
         deserializeJson(doc_starTime, configC_teligram.GetBufferScheduleTime_starTime_hour());
         int hour0 = doc_starTime["hour"];
         int min0 = doc_starTime["min"];
-        if (!isvaledehour(hour0, min0, hour1.toInt(), min1.toInt()))
+        if (isvaledehour(false, hour0, min0, hour1.toInt(), min1.toInt()) == false)
         {
           send_text("Invalid Time(" + comand + "):", "{}", true);
         }
@@ -784,7 +1063,7 @@ void telegram::conand_map(String comand)
         doc["inline_keyboard"][0][0]["text"] = "ADD MORE TIME";
         doc["inline_keyboard"][0][0]["callback_data"] = "s_add_more_time";
         doc["inline_keyboard"][1][0]["text"] = "CANCEL";
-        doc["inline_keyboard"][1][0]["callback_data"] = "s_cancel";
+        doc["inline_keyboard"][1][0]["callback_data"] = "/start";
 
         doc["inline_keyboard"][1][1]["text"] = "SAVE";
         doc["inline_keyboard"][1][1]["callback_data"] = "s_save";
@@ -794,14 +1073,12 @@ void telegram::conand_map(String comand)
         send_text("Do You want to save it:", data, true);
         configC_teligram.SetBufferScheduleSendIndex(7);
       }
-      else if (comand == "s_cancel")
-      {
-      }
+
       else if (comand == "s_add_more_time")
       {
         configC_teligram.SetBufferScheduleIndex(1);
         configC_teligram.SetBufferScheduleSendIndex(0);
-        configC_teligram.SetBufferScheduleTimesIndex(configC_teligram.GetBufferScheduleIndex() + 1);
+        configC_teligram.SetBufferScheduleTimesIndex(configC_teligram.GetBufferScheduleTimesIndex() + 1);
 
         goto schedule_start;
       }

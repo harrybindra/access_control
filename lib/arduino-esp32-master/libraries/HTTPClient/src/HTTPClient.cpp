@@ -214,6 +214,8 @@ bool HTTPClient::begin(String url, const char *CAcert) {
  */
 bool HTTPClient::begin(String url) {
   if (_client && !_tcpDeprecated) {
+            Serial.println("mix up of new and deprecated api");
+
     log_d("mix up of new and deprecated api");
     _canReuse = false;
     end();
@@ -230,6 +232,8 @@ bool HTTPClient::begin(String url) {
   }
   _transportTraits = TransportTraitsPtr(new TransportTraits());
   if (!_transportTraits) {
+                
+
     log_e("could not create transport traits");
     return false;
   }

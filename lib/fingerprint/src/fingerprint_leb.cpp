@@ -11,6 +11,20 @@ void fingerprint_leb::start_fing_sen()
   finger.begin(57600);
  
 }
+//#define FINGERPRINT_LED_WHITE 0x00
+//#define FINGERPRINT_LED_RED 0x01         //!< Red LED
+//#define FINGERPRINT_LED_BLUE 0x02        //!< Blue LED
+//#define FINGERPRINT_LED_PURPLE 0x03 
+//#define FINGERPRINT_LED_GREEN 0x04  
+//#define FINGERPRINT_LED_WHITE_GREEN 0x05  
+void fingerprint_leb::set_sensor_color(bool turn_on,int  color)
+{
+
+   finger.LEDcontrol(turn_on?FINGERPRINT_LED_ON:FINGERPRINT_LED_OFF, 1, color);
+
+ 
+}
+
 // 420 to emptyDatabase
 void fingerprint_leb::del_finger(int fing_id)
 {

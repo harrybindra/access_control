@@ -82,6 +82,312 @@ String json_edit_r(String json_key, String r_path = path)
   return doc[json_key];
 }
 
+bool json_edit_config::GetSessionIsOn()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  JsonDocument doc_starTime_date;
+  bool is = doc["session"]["is_session_on"] == "true" || "1" ? true : false;
+
+  return is;
+};
+
+void json_edit_config::setSessionIsOn(bool is)
+{
+  String ans = LSreadFile(path);
+
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+
+doc["session"]["is_session_on"]=is;
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+};
+//0 : session_map 
+// session_map_temp
+int json_edit_config::GetSessionUserInUseMap()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  JsonDocument doc_starTime_date;
+  int Map = doc["session"]["map_in_use"];
+
+  return Map;
+};
+
+void json_edit_config::SetSessionUserInUseMap(int map)
+{
+  String ans = LSreadFile(path);
+
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+
+doc["session"]["map_in_use"]=map;
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+};
+
+int json_edit_config::GetSessionUserMapSendIndex()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  JsonDocument doc_starTime_date;
+  int MapIndex = doc["session"]["session_map_showen_index"];
+
+  return MapIndex;
+};
+
+void json_edit_config::SetSessionUserMapSendIndex(int index)
+{
+  String ans = LSreadFile(path);
+
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+
+doc["session"]["session_map_showen_index"]=index;
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+};
+
+int json_edit_config::GetSessionUserMapIndex()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  JsonDocument doc_starTime_date;
+  int MapIndex = doc["session"]["session_map_index"];
+
+  return MapIndex;
+};
+
+void json_edit_config::SetSessionUserMapIndex(int index)
+{
+  String ans = LSreadFile(path);
+
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+
+doc["session"]["session_map_index"]=index;
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+};
+
+
+String json_edit_config::GetSessionUserTime()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  JsonDocument doc_starTime_date;
+  doc_starTime_date["date"] = doc["session"]["time"]["date"];
+  doc_starTime_date["month"] = doc["session"]["time"]["month"];
+  doc_starTime_date["year"] = doc["session"]["time"]["year"];
+  doc_starTime_date["hour"] = doc["session"]["time"]["hour"];
+  doc_starTime_date["min"] = doc["session"]["time"]["min"];
+
+  String starTime_date;
+  serializeJson(doc_starTime_date, starTime_date);
+  return starTime_date;
+};
+
+void json_edit_config::SetSessionUserTime(int date, int month, int year, int hour, int min)
+{
+  String ans = LSreadFile(path);
+
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  doc["session"]["time"]["date"] = date;
+  doc["session"]["time"]["month"] = month;
+  doc["session"]["time"]["year"] = year;
+  doc["session"]["time"]["hour"] = hour;
+  doc["session"]["time"]["min"] = min;
+
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+};
+
+void json_edit_config::SetSessionUserTimeId(String user_time_id)
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  doc["session"]["user_time_id"] = user_time_id;
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+}
+String json_edit_config::GetSessionUserTimeId()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  String user_time_id = doc["session"]["user_time_id"];
+  return user_time_id;
+}
+
+void json_edit_config::SetSessionUserPermissions(bool user_permissions_normal, bool user_permissions_config)
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  doc["session"]["user_permissions"]["normal"] = user_permissions_normal;
+  doc["session"]["user_permissions"]["config"] = user_permissions_config;
+
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+}
+int json_edit_config::GetSessionUserPermissions()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  int count_down;
+  bool user_permissions_normal = doc["session"]["user_permissions"]["normal"];
+  bool user_permissions_config = doc["session"]["user_permissions"]["config"];
+  count_down = user_permissions_normal && user_permissions_config ? 3 : user_permissions_normal ? 1
+                                                                                                : 2;
+  return count_down;
+}
+
+void json_edit_config::SetSessionUserCountDown(int count_down)
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  doc["session"]["count_down"] = count_down;
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+}
+int json_edit_config::GetSessionUserCountDown()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  int count_down = doc["session"]["count_down"];
+  return count_down;
+}
+
+void json_edit_config::SetSessionUserAction(String user_action)
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  doc["session"]["user_action"] = user_action;
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+}
+String json_edit_config::GetSessionUserAction()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  String user_action = doc["session"]["user_action"];
+  return user_action;
+}
+
+void json_edit_config::SetSessionUserType(String user_type)
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  doc["session"]["user_type"] = user_type;
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+}
+String json_edit_config::GetSessionUserType()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  String user_type = doc["session"]["user_type"];
+  return user_type;
+}
+
+void json_edit_config::SetSessionFindex(int f_index)
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  doc["session"]["f_index"] = f_index;
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+}
+int json_edit_config::GetSessionFindex()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  int f_index = doc["session"]["f_index"];
+  return f_index;
+}
+
+void json_edit_config::SetSessionShowPin(bool show_pin)
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  doc["session"]["show_pin"] = show_pin;
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+}
+bool json_edit_config::GetSessionShowPin()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  bool show_pin = doc["session"]["show_pin"];
+  return show_pin;
+}
+
+void json_edit_config::SetSessionPin(String Pin)
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  doc["session"]["pin"] = Pin;
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+}
+String json_edit_config::GetSessionPin()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  String pin = doc["session"]["pin"];
+  return pin;
+}
+
+void json_edit_config::SetSessionName(String name)
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  doc["session"]["name"] = name;
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+}
+String json_edit_config::GetSessionName()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  String name = doc["session"]["name"];
+  return name;
+}
+
+String json_edit_config::GetSessionMapKey(int index)
+{
+  String map = GetSessionUserInUseMap()==0?"session_map":"session_map_temp";
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  String mapkey = doc["session"][map][index];
+  return mapkey;
+}
+
+
 // {
 //                 "type": "",
 //                 "start_time": {
@@ -459,7 +765,7 @@ int json_edit_config::GetTeligramComandIndex()
 }
 String json_edit_config::GetTeligramComandKey()
 {
-  int index = GetBufferScheduleTimesIndex();
+  int index = GetTeligramComandIndex();
 
   String ans = LSreadFile(path);
   JsonDocument doc;
@@ -634,7 +940,7 @@ void json_edit_config::SetBufferUserTimeId(String id)
 json_edit_config::json_edit_config()
 {
 }
-void json_edit_config::make_user(String name, int findex, String pin, int timeid, bool locked, bool permissions_normal, bool permissions_config)
+void json_edit_config::make_user(String name, int findex, String pin, String timeid, bool locked, bool permissions_normal, bool permissions_config)
 {
   name.toUpperCase();
   name.trim();
@@ -764,7 +1070,7 @@ String json_edit_config::user_name(String pin)
   }
   return "";
 }
-int json_edit_config::user_timeid(String pin)
+String json_edit_config::user_timeid(String pin)
 {
   String ans = LSreadFile(path);
   JsonDocument doc;
@@ -777,7 +1083,7 @@ int json_edit_config::user_timeid(String pin)
       return doc["users"][i]["timeallow"];
     }
   }
-  return NULL;
+  return "";
 }
 bool json_edit_config::user_permissions_normal(String pin)
 {
@@ -850,7 +1156,27 @@ String json_edit_config::user_list_names()
 //                    },
 //                                    "timeallow" : ""
 // }
-void json_edit_config::make_temp_user(String name, String pin, int timeid, bool permissions_normal, bool permissions_config)
+void json_edit_config::remove_temp_user(String name)
+{
+  name.toUpperCase();
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  int user_count = doc["temp_user"].size() == 0 ? 0 : doc["temp_user"].size();
+  for (int i = 0; i < user_count; i++)
+  {
+
+    if (doc["temp_user"][i]["name"] == name)
+    {
+      doc["temp_user"].remove(i);
+    }
+  }
+
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+}
+
+void json_edit_config::make_temp_user(String name, String pin, String timeid, bool permissions_normal, bool permissions_config)
 {
   name.toUpperCase();
   name.trim();
@@ -916,7 +1242,7 @@ String json_edit_config::user_temp_name(String pin)
   }
   return "";
 }
-int json_edit_config::user_temp_timeid(String pin)
+String json_edit_config::user_temp_timeid(String pin)
 {
   String ans = LSreadFile(path);
   JsonDocument doc;
@@ -929,7 +1255,7 @@ int json_edit_config::user_temp_timeid(String pin)
       return doc["temp_user"][i]["timeallow"];
     }
   }
-  return NULL;
+  return "";
 }
 bool json_edit_config::user_temp_permissions_normal(String pin)
 {
@@ -1140,6 +1466,16 @@ void json_edit_config::SetSdBeginTimeWait(int data)
   json_edit_w(data, "sd_begin_time_wait");
 }
 
+int json_edit_config::GetWiFiBeginTimeWait()
+{
+  return json_edit_r("wifi_begin_time_wait").toInt();
+}
+
+void json_edit_config::SetWiFiBeginTimeWait(int data)
+{
+  json_edit_w(data, "wifi_begin_time_wait");
+}
+
 void json_edit_config::SetSystemName(String data)
 {
   json_edit_w(data, "system_name");
@@ -1147,6 +1483,8 @@ void json_edit_config::SetSystemName(String data)
 
 String json_edit_config::GetSystemName()
 {
+  Serial.println(LSreadFile(path));
+
   return json_edit_r("system_name");
 }
 
@@ -1168,7 +1506,7 @@ String json_edit_config::GetTimeZone()
   return json_edit_r("time_zone");
 }
 
-void json_edit_config::SetCurrentTime(int date,int month,int year,int hour,int min,String day)
+void json_edit_config::SetCurrentTime(int date, int month, int year, int hour, int min, String day)
 {
   String ans = LSreadFile(path);
   JsonDocument doc;
@@ -1184,18 +1522,54 @@ void json_edit_config::SetCurrentTime(int date,int month,int year,int hour,int m
 }
 String json_edit_config::GetCurrentTime()
 {
- 
+
   String ans = LSreadFile(path);
   JsonDocument doc;
   deserializeJson(doc, ans);
-    JsonDocument doc_current_time;
-doc_current_time["date"]=doc["current_time"]["date"] ;
-doc_current_time["month"]=doc["current_time"]["month"] ;
-doc_current_time["year"]=doc["current_time"]["year"] ;
-doc_current_time["hour"]=doc["current_time"]["hour"] ;
-doc_current_time["min"]=doc["current_time"]["min"] ;
-doc_current_time["day"]=doc["current_time"]["day"] ;
+  JsonDocument doc_current_time;
+  doc_current_time["date"] = doc["current_time"]["date"];
+  doc_current_time["month"] = doc["current_time"]["month"];
+  doc_current_time["year"] = doc["current_time"]["year"];
+  doc_current_time["hour"] = doc["current_time"]["hour"];
+  doc_current_time["min"] = doc["current_time"]["min"];
+  doc_current_time["day"] = doc["current_time"]["day"];
 
   serializeJson(doc, ans);
   return ans;
+}
+
+void json_edit_config::SetPublicIpHttpUrl(String data)
+{
+  json_edit_w(data, "public_ip_http_url");
+}
+String json_edit_config::GetPublicIpHttpUrl()
+{
+  return json_edit_r("public_ip_http_url");
+}
+
+void json_edit_config::SetTimeHttpurl(String data)
+{
+  json_edit_w(data, "Time_http_url");
+}
+String json_edit_config::GetTimeHttpurl()
+{
+  return json_edit_r("Time_http_url");
+}
+bool json_edit_config::GetScreenloding()
+{
+  return json_edit_r("screen_loding") == "true" || "1" ? true : false;
+}
+void json_edit_config::SetScreenloding(bool data)
+{
+  json_edit_w(data, "screen_loding");
+}
+
+int json_edit_config::GetFingerTimeWait()
+{
+  return json_edit_r("finger_time_wait").toInt();
+}
+
+void json_edit_config::SetFingerTimeWait(int data)
+{
+  json_edit_w(data, "finger_time_wait");
 }

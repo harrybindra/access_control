@@ -1,3 +1,5 @@
+#ifndef INCORRECT_ICON_H  
+#define INCORRECT_ICON_H 
 // 'frame_18_delay-0', 50x50px
 const unsigned char incorrect_icon_frame_18_delay_0 [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -725,3 +727,4 @@ const unsigned char incorrect_icon_s [] PROGMEM = {
 
 // Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = 10304)
 const int incorrect_icon_allArray_LEN = 28;
+#endif 

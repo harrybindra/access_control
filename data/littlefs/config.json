@@ -1,14 +1,15 @@
 {
     "system_name": "Access_control",
-    "time_zone": "",
     "public_ip": "",
+    "public_ip_http_url": "https://api.myip.com/",
+    "Time_http_url": "https://timeapi.io/api/Time/current/ip?ipAddress=",
     "current_time": {
         "date": 0,
         "month": 0,
         "year": 0,
         "hour": 0,
         "min": 0,
-        "day":""
+        "day": ""
     },
     "teltoken": "",
     "chatid": "",
@@ -26,13 +27,56 @@
     "ap_ssid": "",
     "ap_pass": "",
     "sd_begin_time_wait": 60,
+    "wifi_begin_time_wait": 60,
+    "finger_time_wait": 30,
+    "screen_loding":false,
+    "session": {
+        "is_session_on":false,
+        "session_map_index": 0,
+        "session_map_showen_index":-1,
+        "map_in_use":0,
+        "session_map": [
+            "mode_select",
+            "pin_enter",
+            "finger_print",
+            "permissions_select",
+            "finish"
+        ],
+        "session_map_temp": [
+            "mode_select",
+            "pin_enter",
+            "permissions_select",
+            "finish"
+        ],
+        "show_pin":false,
+        "name": "",
+        "pin": "",
+        "f_index": 0,
+        "user_type": "",
+        "user_action": "",
+        "count_down": 0,
+        "user_permissions": {
+            "normal": false,
+            "config": false
+        },
+        "user_time_id": "",
+        "time": {
+            "date": 0,
+            "month": 0,
+            "year": 0,
+            "hour": 0,
+            "min": 0
+        }
+    },
     "users": [],
     "temp_user": [],
     "telegram_bot_id": 0,
     "telegram_comand_index": -1,
     "telegram_comand_keys": [
+        "list_users",
         "add_user",
         "locke_unlock",
+        "list_schedule",
         "schedule",
         "shutedown"
     ],
@@ -81,7 +125,8 @@
             "name",
             "pin",
             "permissions",
-            "timeallow"
+            "timeallow",
+            "finish"
         ],
         "user": {
             "name": "",

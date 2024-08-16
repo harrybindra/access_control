@@ -1,5 +1,5 @@
 #include "networking_config.h"
-
+json_edit_config configC_network;
 String networking_config::genretepass()
 {
   String letters[40] = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"};
@@ -57,7 +57,7 @@ bool networking_config::connect_wifi(String ssid, String pass)
   
   while (true)
   {
-    if (time_trys_conect == 600 || WiFi.status() == WL_CONNECT_FAILED)
+    if (time_trys_conect == configC_network.GetWiFiBeginTimeWait() || WiFi.status() == WL_CONNECT_FAILED)
     {
    
       return false;
@@ -76,6 +76,6 @@ bool networking_config::connect_wifi(String ssid, String pass)
 
 
     time_trys_conect++;
-    delay(100);
+    delay(1000);
   }
 }

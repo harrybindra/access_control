@@ -1,3 +1,5 @@
+#ifndef CORECT_ICON_H  
+#define CORECT_ICON_H 
 // 'frame_00_delay-0', 50x50px
 const unsigned char  correct_icon_frame_00_delay_0 [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -700,3 +702,4 @@ const unsigned char  correct_icon_frame_26_delay_0 [] PROGMEM = {
 };
 
 // Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = 10304)
+#endif 

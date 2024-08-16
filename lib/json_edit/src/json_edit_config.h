@@ -14,6 +14,55 @@ private:
   /* data */
 public:
   json_edit_config(/* args */);
+bool GetSessionIsOn();
+void setSessionIsOn(bool is);
+
+void SetSessionShowPin(bool show_pin);
+bool GetSessionShowPin();
+
+int GetSessionUserMapSendIndex();
+void SetSessionUserMapSendIndex(int index);
+
+  int GetSessionUserInUseMap();
+  void SetSessionUserInUseMap(int map);
+  int GetSessionUserMapIndex();
+  void SetSessionUserMapIndex(int index);
+  String GetSessionUserTime();
+
+
+  void SetSessionUserTime(int date, int month, int year, int hour, int min);
+
+  void SetSessionUserTimeId(String user_time_id);
+
+  String GetSessionUserTimeId();
+
+  void SetSessionUserPermissions(bool user_permissions_normal, bool user_permissions_config);
+
+  int GetSessionUserPermissions();
+
+  void SetSessionUserCountDown(int count_down);
+
+  int GetSessionUserCountDown();
+
+  void SetSessionUserAction(String user_action);
+
+  String GetSessionUserAction();
+
+  void SetSessionUserType(String user_type);
+
+  String GetSessionUserType();
+
+  void SetSessionFindex(int f_index);
+
+  int GetSessionFindex();
+
+  void SetSessionPin(String Pin);
+
+  String GetSessionPin();
+  void SetSessionName(String name);
+
+  String GetSessionName();
+  String GetSessionMapKey(int index);
 
   String GetBufferSchedule();
 
@@ -22,7 +71,7 @@ public:
   String GetBufferScheduleTime_starTime_hour();
   String GetBufferScheduleTime_endTime_hour();
 
-void ResetBufferScheduleTime_day();
+  void ResetBufferScheduleTime_day();
   int GetBufferScheduleTime_day_size();
   void SetBufferScheduleTime_day(String day);
   String GetBufferScheduleTime_day();
@@ -83,7 +132,8 @@ void ResetBufferScheduleTime_day();
   String GetBufferUserTimeId();
   void SetBufferUserTimeId(String id);
 
-  void make_user(String name, int findex, String pin, int timeid, bool locked, bool permissions_normal, bool permissions_config);
+  void remove_temp_user(String name);
+  void make_user(String name, int findex, String pin, String timeid, bool locked, bool permissions_normal, bool permissions_config);
   void remove_user(String name, int findex, String pin);
   bool user_pin_exist(String pin);
   bool user_name_exist(String name);
@@ -91,17 +141,17 @@ void ResetBufferScheduleTime_day();
   int user_last_findex();
   int user_findex(String pin);
   String user_name(String pin);
-  int user_timeid(String pin);
+  String user_timeid(String pin);
   bool user_permissions_normal(String pin);
   bool user_permissions_config(String pin);
   String user_pin(String name);
   String user_list_names();
 
-  void make_temp_user(String name, String pin, int timeid, bool permissions_normal, bool permissions_config);
+  void make_temp_user(String name, String pin, String timeid, bool permissions_normal, bool permissions_config);
   bool user_temp_pin_exist(String pin);
   bool user_temp_name_exist(String name);
   String user_temp_name(String pin);
-  int user_temp_timeid(String pin);
+  String user_temp_timeid(String pin);
   bool user_temp_permissions_normal(String pin);
   bool user_temp_permissions_config(String pin);
   String user_temp_pin(String name);
@@ -150,16 +200,32 @@ void ResetBufferScheduleTime_day();
   int GetSdBeginTimeWait();
   void SetSdBeginTimeWait(int data);
 
+  int GetWiFiBeginTimeWait();
+  void SetWiFiBeginTimeWait(int data);
+
   void SetSystemName(String data);
-String GetSystemName();
+  String GetSystemName();
 
- void SetPublicIp(String data);
-String GetPublicIp();
+  void SetPublicIp(String data);
+  String GetPublicIp();
 
-void SetTimeZone(String data);
-String GetTimeZone();
+  void SetTimeZone(String data);
+  String GetTimeZone();
 
-void SetCurrentTime(int date,int month,int year,int hour,int min,String day);
-String GetCurrentTime();
+  void SetCurrentTime(int date, int month, int year, int hour, int min, String day);
+  String GetCurrentTime();
+
+  void SetPublicIpHttpUrl(String data);
+  String GetPublicIpHttpUrl();
+
+  void SetTimeHttpurl(String data);
+  String GetTimeHttpurl();
+
+  void SetScreenloding(bool data);
+  bool GetScreenloding();
+
+int GetFingerTimeWait();
+void SetFingerTimeWait(int data);
+
 };
 #endif

@@ -4,8 +4,11 @@
 #include "corect_icon.h"
 #include "incorrect_icon.h"
 #include <ILI9488.h>
+#include <json_edit_config.h>
 
 #include <Adafruit_GFX.h>
+#ifndef SCREEN_COMPO_H  
+#define SCREEN_COMPO_H 
 class screen_compo
 {
 private:
@@ -17,9 +20,11 @@ void loading_pop_up(bool render,int x=210,int y = 50,int  l_color=WHITE,int b_co
 void finger_screen(bool render,bool click_n,bool click_b);
 
 void clear_display();
+void keypadscreen_update_eye(bool render, bool update,bool show);
+
 //"no error"
-void keypadscreen(bool render, int show ,String error_text,bool click_n,bool click_b);
-void keypadscreen_update_pin(bool render, int show ,String pin, int index);
+void keypadscreen(bool render, bool show ,String error_text,bool click_n,bool click_b);
+void keypadscreen_update_pin(bool render, bool update, bool show ,String pin, int index);
 void incorrect(bool render,bool animation,int x=210,int y = 50);
 void correct(bool render,bool animation,int x=210,int y = 50);
 void qr_screen(bool render,String data, int size=3,String page_titel="QR",int btn_ops=3,bool click_n = false, bool click_b = false, int offset_x = 150, int offset_y = 80);
@@ -28,3 +33,4 @@ void com_error(bool render, String page_titel ="WiFi Error",int theem_coler=RED,
 void selectscreen(bool render,String option_first="Unlocke", bool selected =false ,int x=60,int y=90 ,String page_titel="Mode",String input_letter="A",int btn_ops=0,bool click_n =false, bool click_b =false);
 };
 
+#endif 
