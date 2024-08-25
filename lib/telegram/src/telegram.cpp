@@ -12,50 +12,9 @@ String comand_key_locke_unlock = "locke_unlock";
 String comand_key_list_schedule = "list_schedule";
 String comand_key_schedule = "schedule";
 String comand_key_shutedown = "shutedown";
-bool isvalededate(bool checkeing_first, int date0, int month0, int year0, int date1, int month1, int year1)
-{
-  if (checkeing_first)
-  {
 
-    if (date0 <= timer_teligram.Getdate() && month0 <= timer_teligram.Getmonth() && year0 <= timer_teligram.Getyear())
-    {
-      return false;
-    }
-  }
-  else
-  {
 
-    if (date0 > date1 && month0 > month1 && year0 > year1)
-    {
-      return false;
-    }
-  }
-  return true;
-}
-bool isvaledehour(bool checkeing_first, int hour0, int min0, int hour1, int min1)
-{
-  if (checkeing_first)
-  {
-    // if (hour0 < timer_teligram.Gethour())
-    // {
-    //   return false;
-    // }
-    if (hour0 > hour1)
-    {
-      return false;
-    }
-  }
-  else
-  {
 
-    if (hour0 > hour1)
-    {
-      return false;
-    }
-  }
-
-  return true;
-}
 String days_render()
 {
   String days = configC_teligram.GetBufferScheduleTime_day();
@@ -154,6 +113,27 @@ bool has_letters(String data)
     return true;
   }
 }
+
+void telegram::teligram_reset()
+{
+configC_teligram.SetTeligramComandIndex(-1);
+configC_teligram.SetBufferScheduleIndex(0);
+configC_teligram.SetBufferScheduleTimesIndex(0);
+configC_teligram.SetBufferScheduleSendIndex(0);
+configC_teligram.SetBufferScheduleName("");
+configC_teligram.SetBufferScheduleTimeReset();
+
+
+configC_teligram.SetBufferUserSendIndex(0);
+configC_teligram.SetBufferUserIndex(0);
+configC_teligram.SetBufferUserName("");
+configC_teligram.SetBufferUserPin("");
+configC_teligram.SetBufferUserPermissionsNormal(false);
+configC_teligram.SetBufferUserPermissionsConfig(false);
+configC_teligram.SetBufferUserTimeId("");
+
+}
+
 void telegram::send_text(String text, String object, bool update)
 {
 
@@ -223,22 +203,34 @@ void telegram::remove_mass(int mass_id)
 // GetLastUpdateId
 // GetChatId
 String telegram::get_last_mass()
-{
-  String token = configC_teligram.GetTelToken();
+{          Serial.println("start");
+ 
   String lastupdateid = configC_teligram.GetLastUpdateId();
+          Serial.println("lastupdateid");
+ Serial.println(configC_teligram.GetTelToken());
+  String token = configC_teligram.GetTelToken();
+            Serial.println("token");
+
   String chatid = configC_teligram.GetChatId();
-  http_teligram.begin("https://api.telegram.org/bot" + token + "/getUpdates");
-  http_teligram.addHeader("Host", "telegram.org");
+          Serial.println("chatid");
+
+        Serial.println("vars");
+
   JsonDocument doc_pak;
   if (lastupdateid!="")
   {doc_pak["offset"] = lastupdateid.toInt() + 1;
   doc_pak["timeout"] = 0;
   }
-  
+  Serial.println(lastupdateid.toInt() + 1);
 
   String paquet;
 
   serializeJson(doc_pak, paquet);
+      Serial.println("serialize");
+
+http_teligram.begin("https://api.telegram.org/bot" + token + "/getUpdates");
+  http_teligram.addHeader("Host", "telegram.org");
+    Serial.println("begin");
 
   if (http_teligram.POST(paquet) == HTTP_CODE_OK)
   {
@@ -262,7 +254,7 @@ String telegram::get_last_mass()
     String resulet;
     String idD = doc["result"][index];
 
-    if (id == lastupdateid)
+    if (id <= lastupdateid)
     {
 
       return "false";
@@ -553,7 +545,7 @@ void telegram::conand_map(String comand)
     {
       if (key_send == "permissions")
       {  
-          Serial.println("start");
+          Serial.println("stardsdsdt");
 
         String data = user_list_render(0, sd_edit_teligram.list_schedule(), false, "ADD", comand_key_schedule, "schedule");
         Serial.println("add_userstart");
@@ -822,7 +814,7 @@ void telegram::conand_map(String comand)
             temp_index++;
           }
         }
-        if (isvalededate(true, date.toInt(), month.toInt(), year.toInt(), 0, 0, 0) == false)
+        if (timer_teligram.isvalededate(true, date.toInt(), month.toInt(), year.toInt(), 0, 0, 0) == false)
         {
           send_text("Invalid Time(" + comand + "):", "{}", true);
         }
@@ -888,7 +880,7 @@ void telegram::conand_map(String comand)
         int starTime_date_date0 = doc_starTime["date"];
         int starTime_date_month0 = doc_starTime["month"];
         int starTime_date_year0 = doc_starTime["year"];
-        if (isvalededate(false, starTime_date_date0, starTime_date_month0, starTime_date_year0, date1.toInt(), month1.toInt(), year1.toInt()) == false)
+        if (timer_teligram.isvalededate(false, starTime_date_date0, starTime_date_month0, starTime_date_year0, date1.toInt(), month1.toInt(), year1.toInt()) == false)
         {
           send_text("Invalid Time(" + comand + "):", "{}", true);
         }
@@ -945,7 +937,7 @@ void telegram::conand_map(String comand)
             temp_index++;
           }
         }
-        if (isvaledehour(true, hour.toInt(), min.toInt(), 0, 0) == false)
+        if (timer_teligram.isvaledehour(true, hour.toInt(), min.toInt(), 0, 0) == false)
         {
 
           send_text("Invalid Time(" + comand + "):", "{}", true);
@@ -1008,7 +1000,7 @@ void telegram::conand_map(String comand)
         deserializeJson(doc_starTime, configC_teligram.GetBufferScheduleTime_starTime_hour());
         int hour0 = doc_starTime["hour"];
         int min0 = doc_starTime["min"];
-        if (isvaledehour(false, hour0, min0, hour1.toInt(), min1.toInt()) == false)
+        if (timer_teligram.isvaledehour(false, hour0, min0, hour1.toInt(), min1.toInt()) == false)
         {
           send_text("Invalid Time(" + comand + "):", "{}", true);
         }

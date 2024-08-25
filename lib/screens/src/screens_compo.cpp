@@ -192,6 +192,7 @@ void overlay(bool render, String page_titel, int btn_ops, bool click_n = false, 
     // 240
     myScreen.setTextColor(WHITE);
     myScreen.setCursor(240 - page_titel_half, y);
+        myScreen.fillRect(240- page_titel_half, y, cal_wid(page_titel,2), 25, BLACK);
     myScreen.setTextSize(2);
     myScreen.print(page_titel + ":");
     myScreen.drawRect(0, 25, 480, 1, WHITE);
@@ -314,7 +315,7 @@ void screen_compo::keypadscreen_update_eye(bool render, bool update, bool show)
 void screen_compo::keypadscreen(bool render, bool show, String error_text, bool click_n = false, bool click_b = false)
 {
   int g = error_text.length();
- if (error_text.indexOf("no error") == -1)
+ if (error_text.indexOf("no error") == -1 &&render!=false)
     {
       myScreen.fillRect(0, 180, 480, 30, 0x0000);
 

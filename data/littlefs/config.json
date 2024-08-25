@@ -29,12 +29,35 @@
     "sd_begin_time_wait": 60,
     "wifi_begin_time_wait": 60,
     "finger_time_wait": 30,
-    "screen_loding":false,
+    "wifi_list": [],
+    "screen_loding": false,
+    "alert": {
+        "alert_should_be_shown":false,
+        "alerts_index": -1,
+        "alerts_map": [
+            {
+                "name": "setup",
+                "type": "v-not-need"
+            },
+            {
+                "name": "add_user",
+                "type": "v-not-need"
+            },
+            {
+                "name": "shutdown",
+                "type": "v-need"
+            },
+            {
+                "name": "wifi",
+                "type": "v-need"
+            }
+        ]
+    },
     "session": {
-        "is_session_on":false,
+        "is_session_on": false,
         "session_map_index": 0,
-        "session_map_showen_index":-1,
-        "map_in_use":0,
+        "session_map_showen_index": -1,
+        "map_in_use": 0,
         "session_map": [
             "mode_select",
             "pin_enter",
@@ -48,7 +71,7 @@
             "permissions_select",
             "finish"
         ],
-        "show_pin":false,
+        "show_pin": false,
         "name": "",
         "pin": "",
         "f_index": 0,

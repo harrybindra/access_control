@@ -14,6 +14,7 @@ private:
 public:
     void restart(String perpous);
     void verification(String input);
-
+void verification_reset();
+void fingreprint_register(int index);
 };
 #endif 

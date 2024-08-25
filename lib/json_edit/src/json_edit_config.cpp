@@ -82,6 +82,78 @@ String json_edit_r(String json_key, String r_path = path)
   return doc[json_key];
 }
 
+
+bool json_edit_config::GetAlertShouldBeShown()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  JsonDocument doc_starTime_date;
+  bool is = doc["alert"]["alert_should_be_shown"] == "true" || "1" ? true : false;
+
+  return is;
+};
+
+void json_edit_config::SetAlertShouldBeShown(bool Should)
+{
+  String ans = LSreadFile(path);
+
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+
+doc["alert"]["alert_should_be_shown"]=Should;
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+};
+
+
+int json_edit_config::GetAlertIndex()
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  JsonDocument doc_starTime_date;
+  int MapIndex = doc["alert"]["alerts_index"];
+
+  return MapIndex;
+};
+
+void json_edit_config::SetAlertIndex(int index)
+{
+  String ans = LSreadFile(path);
+
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+
+doc["alert"]["alerts_index"]=index;
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+};
+String json_edit_config::GetAlertMapKeyName(int index)
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  String mapkey = doc["alert"]["alerts_map"][index]["name"];
+  return mapkey;
+}
+
+String json_edit_config::GetAlertMapKeyType(int index)
+{
+  String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  String mapkey = doc["alert"]["alerts_map"][index]["type"];
+  return mapkey;
+}
+
+
+
+
+
+
+
+
 bool json_edit_config::GetSessionIsOn()
 {
   String ans = LSreadFile(path);
@@ -93,7 +165,7 @@ bool json_edit_config::GetSessionIsOn()
   return is;
 };
 
-void json_edit_config::setSessionIsOn(bool is)
+void json_edit_config::SetSessionIsOn(bool is)
 {
   String ans = LSreadFile(path);
 
@@ -238,17 +310,21 @@ void json_edit_config::SetSessionUserPermissions(bool user_permissions_normal, b
   serializeJson(doc, ans);
   LSwriteFile(path, ans);
 }
-int json_edit_config::GetSessionUserPermissions()
+//user_permissions_normal && user_permissions_config ? 3 : user_permissions_normal ? 1: 2;
+bool json_edit_config::GetSessionUserPermissionsNormal()
 {
   String ans = LSreadFile(path);
   JsonDocument doc;
   deserializeJson(doc, ans);
-  int count_down;
   bool user_permissions_normal = doc["session"]["user_permissions"]["normal"];
-  bool user_permissions_config = doc["session"]["user_permissions"]["config"];
-  count_down = user_permissions_normal && user_permissions_config ? 3 : user_permissions_normal ? 1
-                                                                                                : 2;
-  return count_down;
+  return user_permissions_normal;
+}
+bool json_edit_config::GetSessionUserPermissionsConfig(){
+ String ans = LSreadFile(path);
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  bool user_permissions_normal = doc["session"]["user_permissions"]["config"];
+  return user_permissions_normal;
 }
 
 void json_edit_config::SetSessionUserCountDown(int count_down)
@@ -387,8 +463,8 @@ String json_edit_config::GetSessionMapKey(int index)
   return mapkey;
 }
 
-
-// {
+//"name":"",
+//"times": {
 //                 "type": "",
 //                 "start_time": {
 //                     "date": 0,
@@ -510,7 +586,19 @@ String json_edit_config::GetBufferScheduleTime_type()
   String user = doc["buffer_schedule"]["times"][index]["type"];
   return user;
 };
+void json_edit_config::SetBufferScheduleTimeReset()
+{
+  String ans = LSreadFile(path);
+
+  JsonDocument doc;
+  deserializeJson(doc, ans);
+  doc["buffer_schedule"]["times"].clear();
+  serializeJson(doc, ans);
+  LSwriteFile(path, ans);
+}
+
 // entry/no_entry
+
 void json_edit_config::SetBufferScheduleTime_type(String type)
 {
   String ans = LSreadFile(path);
@@ -1030,9 +1118,16 @@ int json_edit_config::user_last_findex()
   JsonDocument doc;
   deserializeJson(doc, ans);
   int user_count = doc["users"].size();
-  for (int i = 1; i < user_count; i++)
+  if (user_count==0)
   {
-    if (doc["users"][i]["findex"] != i)
+         return 1;
+
+  }
+  
+  for (int i = 1; i < user_count+1; i++)
+  {
+    if (doc["users"][i]["findex"] != i
+    )
     {
       return i;
     }
@@ -1572,4 +1667,13 @@ int json_edit_config::GetFingerTimeWait()
 void json_edit_config::SetFingerTimeWait(int data)
 {
   json_edit_w(data, "finger_time_wait");
+}
+
+void json_edit_config::SetWiFiList(String data)
+{
+  json_edit_w(data, "wifi_list");
+}
+String json_edit_config::GetWiFiList()
+{
+  return json_edit_r("wifi_list");
 }

@@ -78,14 +78,13 @@ void sd_edit_config::start_sd()
     system_name = configC_sd_edit.GetSystemName();
     path_schedule = system_name + "/schedule";
     path_schedule_config = path_schedule + "/config.json";
-
     path_logs = system_name + "/logs";
     path_logs_config = path_logs + "/config.json";
-
     Serial.println("----------------------");
     Serial.println(system_name);
     Serial.println(path_schedule);
     Serial.println(path_logs);
+    Serial.println(path_schedule_config);
 
     int sd_begin_time_wait = configC_sd_edit.GetSdBeginTimeWait();
     int time_passed = 0;
@@ -148,7 +147,8 @@ bool sd_edit_config::exists_schedule(String name)
 }
 String sd_edit_config::list_schedule()
 {
-    return json_edit_r_config();
+    String data = json_edit_r_config();
+    return data;
 }
 
 String sd_edit_config::get_schedule(String name)
@@ -162,32 +162,30 @@ String sd_edit_config::get_schedule(String name)
 bool sd_edit_config::remove_schedule(String name)
 {
     String path = path_schedule + "/" + name + ".json";
-       FsFile file = sd.open(path, O_WRITE);
-file.print("");
-Serial.println(file.readString());
-file.close();
-bool  rem = sd.remove(path);
-String config_schedule=json_edit_r_config(path_schedule_config);
- 
- JsonDocument doc;
-deserializeJson(doc,config_schedule);
-for (int i = 0; i < doc.size(); i++)
-{
-    if (doc[i]==name)
+    FsFile file = sd.open(path, O_WRITE);
+    file.print("");
+    Serial.println(file.readString());
+    file.close();
+    bool rem = sd.remove(path);
+    String config_schedule = json_edit_r_config(path_schedule_config);
+
+    JsonDocument doc;
+    deserializeJson(doc, config_schedule);
+    for (int i = 0; i < doc.size(); i++)
     {
-       Serial.println(name); 
- 
-        doc.remove(i);
+        if (doc[i] == name)
+        {
+            Serial.println(name);
+
+            doc.remove(i);
+        }
     }
-    
-}
-serializeJson(doc,config_schedule);
-Serial.println(config_schedule); 
-FsFile make_schedule_file_w = sd.open(path_schedule_config, O_WRITE);
+    serializeJson(doc, config_schedule);
+    Serial.println(config_schedule);
+    FsFile make_schedule_file_w = sd.open(path_schedule_config, O_WRITE);
     make_schedule_file_w.println(config_schedule);
     make_schedule_file_w.close();
-  return rem;
- 
+    return rem;
 }
 bool sd_edit_config::is_allow_to_enter(String id_name)
 {
@@ -232,11 +230,10 @@ bool sd_edit_config::is_allow_to_enter(String id_name)
             schedule_month_end <= month &&
             schedule_year_end <= year &&
             schedule_hour_end <= hour &&
-            schedule_min_end <= min )
+            schedule_min_end <= min)
         {
             return true;
         }
-       
     }
- return false;
+    return false;
 }

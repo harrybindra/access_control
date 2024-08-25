@@ -10,6 +10,8 @@ String session_map_pin_enter = "pin_enter";
 String session_map_finger_print = "finger_print";
 String session_map_permissions_select = "permissions_select";
 String session_map_finish = "finish";
+String action_normel = "normel";
+String action_config = "config";
 
 void sho_hide_pin(String pin_to_show, bool show)
 {
@@ -35,6 +37,41 @@ void ac_system_tasks::restart(String perpous)
     // make loge
     ESP.restart();
 }
+void ac_system_tasks::fingreprint_register(int index){
+screen_system_tasks.finger_screen(true,false,false);
+start:
+finger_system_tasks.set_sensor_color(FINGERPRINT_LED_BLUE);
+while (!finger_system_tasks.available_finger())
+{
+Serial.println(".");
+}
+if (finger_system_tasks.reg_storefinger(index)=="true")
+{
+finger_system_tasks.set_sensor_color(4);
+vTaskDelay(1000);
+screen_system_tasks.finger_screen(false,false,false);
+finger_system_tasks.set_sensor_color(FINGERPRINT_LED_OFF);
+
+
+}
+
+}
+
+void ac_system_tasks::verification_reset()
+{
+    json_config_system_tasks.SetSessionPin("");
+    json_config_system_tasks.SetSessionUserMapIndex(0);
+    json_config_system_tasks.SetSessionUserMapSendIndex(-1);
+    json_config_system_tasks.SetSessionUserPermissions(false, false);
+    json_config_system_tasks.SetSessionUserAction("");
+    json_config_system_tasks.SetSessionIsOn(false);
+    json_config_system_tasks.SetSessionShowPin(false);
+    json_config_system_tasks.SetSessionName("");
+    json_config_system_tasks.SetSessionFindex(0);
+    json_config_system_tasks.SetSessionUserTimeId("");
+    json_config_system_tasks.SetSessionUserTime(0, 0, 0, 0, 0);
+    json_config_system_tasks.SetSessionUserCountDown(0);
+}
 void ac_system_tasks::verification(String input)
 {
     String key = input;
@@ -51,7 +88,7 @@ Start_verification:
             Serial.println(key);
             screen_system_tasks.selectscreen(true, "Normel", false, 60, 90, "Mode", "A");
             screen_system_tasks.selectscreen(true, "Temp", false, 60, 190, "Mode", "B");
-            json_config_system_tasks.setSessionIsOn(true);
+            json_config_system_tasks.SetSessionIsOn(true);
             json_config_system_tasks.SetSessionUserMapSendIndex(0);
         }
         else
@@ -104,10 +141,20 @@ Start_verification:
                         { // if pin exist
                             String name = json_config_system_tasks.user_name(c_pin);
                             int f_index = json_config_system_tasks.user_findex(c_pin);
+                            String timeid = json_config_system_tasks.user_timeid(c_pin);
+                            bool permissions_config = json_config_system_tasks.user_permissions_config(c_pin);
+                            bool permissions_normel = json_config_system_tasks.user_permissions_config(c_pin);
                             json_config_system_tasks.SetSessionName(name);
                             json_config_system_tasks.SetSessionFindex(f_index);
+                            json_config_system_tasks.SetSessionUserTimeId(timeid);
                             json_config_system_tasks.SetSessionUserTime(time_config_system_tasks.Getdate(), time_config_system_tasks.Getmonth(), time_config_system_tasks.Getyear(), time_config_system_tasks.Gethour(), time_config_system_tasks.Getmin());
+                            json_config_system_tasks.SetPinTrys(0);
                             json_config_system_tasks.SetSessionUserMapIndex(2);
+                            json_config_system_tasks.SetSessionUserPermissions(permissions_normel, permissions_config);
+
+                            screen_system_tasks.keypadscreen(false, json_config_system_tasks.GetSessionShowPin(), "no error", true, true);
+                            screen_system_tasks.correct(true, false);
+                            screen_system_tasks.correct(false, true);
                         }
                         else
                         { // if pin does not exist
@@ -119,15 +166,26 @@ Start_verification:
                         }
                         goto Start_verification;
                     }
-                    else if (json_config_system_tasks.GetSessionUserInUseMap() == 0)
+                    else if (json_config_system_tasks.GetSessionUserInUseMap() == 1)
                     {
                         // check if pin exist
                         if (json_config_system_tasks.user_temp_pin_exist(c_pin))
                         { // if pin exist
                             String name = json_config_system_tasks.user_temp_name(c_pin);
+                            String timeid = json_config_system_tasks.user_temp_timeid(c_pin);
+
+                            bool permissions_config = json_config_system_tasks.user_temp_permissions_config(c_pin);
+                            bool permissions_normel = json_config_system_tasks.user_temp_permissions_normal(c_pin);
                             json_config_system_tasks.SetSessionName(name);
+                            json_config_system_tasks.SetSessionUserTimeId(timeid);
+                            json_config_system_tasks.SetSessionUserPermissions(permissions_normel, permissions_config);
                             json_config_system_tasks.SetSessionUserTime(time_config_system_tasks.Getdate(), time_config_system_tasks.Getmonth(), time_config_system_tasks.Getyear(), time_config_system_tasks.Gethour(), time_config_system_tasks.Getmin());
+                            json_config_system_tasks.SetPinTrys(0);
                             json_config_system_tasks.SetSessionUserMapIndex(2);
+
+                            screen_system_tasks.keypadscreen(false, json_config_system_tasks.GetSessionShowPin(), "no error", true, true);
+                            screen_system_tasks.correct(true, false);
+                            screen_system_tasks.correct(false, true);
                         }
                         else
                         { // if pin does not exist
@@ -169,6 +227,8 @@ Start_verification:
             }
             else
             {
+                Serial.println(c_pin);
+
                 if (c_pin.length() < 8)
                 {
 
@@ -215,18 +275,79 @@ Start_verification:
                 finger_system_tasks.set_sensor_color(true, 4);
 
                 json_config_system_tasks.SetSessionUserMapSendIndex(3);
+                screen_system_tasks.finger_screen(false, false, false);
+                screen_system_tasks.correct(true, true);
                 vTaskDelay(500 / portTICK_PERIOD_MS);
+                screen_system_tasks.correct(false, true);
             }
             else
             {
                 finger_system_tasks.set_sensor_color(true, 1);
                 json_config_system_tasks.SetSessionUserMapSendIndex(1);
                 json_config_system_tasks.SetFingTrys(json_config_system_tasks.GetFingTrys() + 1);
-                vTaskDelay(500 / portTICK_PERIOD_MS);
 
                 finger_system_tasks.set_sensor_color(false, 1);
+                screen_system_tasks.finger_screen(false, false, false);
+                screen_system_tasks.incorrect(true, true);
+                vTaskDelay(500 / portTICK_PERIOD_MS);
+                screen_system_tasks.incorrect(false, true);
             }
             goto Start_verification;
+        }
+    }
+    if (map_key == session_map_permissions_select)
+    {
+
+        if (map_show_key != session_map_permissions_select)
+        {
+            bool permissions_config = json_config_system_tasks.GetSessionUserPermissionsConfig();
+            bool permissions_normel = json_config_system_tasks.GetSessionUserPermissionsNormal();
+            if (permissions_config)
+            {
+                screen_system_tasks.selectscreen(true, "Unlocke", false, 60, 90, "Action", "A");
+            }
+            if (permissions_normel)
+            {
+                screen_system_tasks.selectscreen(true, "Config", false, 60, 190, "Action", "B");
+            }
+            json_config_system_tasks.SetSessionUserMapSendIndex(3);
+        }
+        else
+        {
+            String action = "";
+            if (key == "A")
+            {
+                action = action_normel;
+            }
+            if (key == "B")
+            {
+                action = action_config;
+            }
+            if (key == "A" || key == "B")
+            {
+                json_config_system_tasks.SetSessionUserAction(action);
+                json_config_system_tasks.SetSessionUserMapIndex(4);
+            }
+        }
+    }
+    if (map_key == session_map_finish)
+    {
+
+        if (map_show_key != session_map_finish)
+        {
+            String action = json_config_system_tasks.GetSessionUserAction();
+            if (action == action_normel)
+            {
+                //open door
+                //make log
+                verification_reset();
+            }
+            if (action == action_config)
+            {
+                //open ap
+                //make log
+                verification_reset();
+            }
         }
     }
 }

@@ -14,8 +14,21 @@ private:
   /* data */
 public:
   json_edit_config(/* args */);
+  bool GetAlertShouldBeShown();
+
+  void SetAlertShouldBeShown(bool Should);
+
+  int GetAlertIndex();
+
+void SetAlertIndex(int index);
+
+String GetAlertMapKeyName(int index);
+
+String GetAlertMapKeyType(int index);
+
+
 bool GetSessionIsOn();
-void setSessionIsOn(bool is);
+void SetSessionIsOn(bool is);
 
 void SetSessionShowPin(bool show_pin);
 bool GetSessionShowPin();
@@ -38,7 +51,9 @@ void SetSessionUserMapSendIndex(int index);
 
   void SetSessionUserPermissions(bool user_permissions_normal, bool user_permissions_config);
 
-  int GetSessionUserPermissions();
+bool GetSessionUserPermissionsConfig();
+bool GetSessionUserPermissionsNormal();
+
 
   void SetSessionUserCountDown(int count_down);
 
@@ -90,6 +105,9 @@ void SetSessionUserMapSendIndex(int index);
   void SetBufferScheduleTimesIndex(int index);
 
   String GetBufferScheduleName();
+
+void SetBufferScheduleTimeReset();
+
 
   String GetBufferScheduleTime_type();
   void SetBufferScheduleTime_type(String type);
@@ -162,6 +180,7 @@ void SetSessionUserMapSendIndex(int index);
 
   String GetApPass();
   void SetApPass(String data);
+  
   String GetTelToken();
   void SetTelToken(String data);
 
@@ -226,6 +245,9 @@ void SetSessionUserMapSendIndex(int index);
 
 int GetFingerTimeWait();
 void SetFingerTimeWait(int data);
+
+void SetWiFiList(String data);
+String GetWiFiList();
 
 };
 #endif

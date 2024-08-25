@@ -3,7 +3,6 @@ json_edit_config json_time_config;
 HTTPClient http_time_config;
 ESP32Time rtc;
 
-
 String time_config::GetPublicIp()
 {
     Serial.println("--");
@@ -137,3 +136,49 @@ int time_config::Getmonth()
 {
     return rtc.getMonth();
 }
+bool time_config::isvalededate(bool checkeing_first, int date0, int month0, int year0, int date1, int month1, int year1)
+{
+  if (checkeing_first)
+  {
+
+    if (date0 <= Getdate() && month0 <= Getmonth() && year0 <= Getyear())
+    {
+      return false;
+    }
+  }
+  else
+  {
+
+    if (date0 > date1 && month0 > month1 && year0 > year1)
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool time_config::isvaledehour(bool checkeing_first, int hour0, int min0, int hour1, int min1)
+{
+  if (checkeing_first)
+  {
+    // if (hour0 < timer_teligram.Gethour())
+    // {
+    //   return false;
+    // }
+    if (hour0 > hour1)
+    {
+      return false;
+    }
+  }
+  else
+  {
+
+    if (hour0 > hour1)
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+

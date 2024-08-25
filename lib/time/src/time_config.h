@@ -11,6 +11,10 @@ class time_config
 private:
     /* data */
 public:
+bool isvaledehour(bool checkeing_first, int hour0, int min0, int hour1, int min1);
+
+bool isvalededate(bool checkeing_first, int date0, int month0, int year0, int date1, int month1, int year1);
+
     String GetPublicIp();
     String GetTime();
     int Getyear();

@@ -7,6 +7,7 @@ class telegram
 private:
 
 public:
+void teligram_reset();
 void send_text(String text ,String object="{}",bool update=true);
 void remove_mass(int mass_id);
 
